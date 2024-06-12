@@ -126,10 +126,10 @@ def list_processed_files():
             processed_files[pdf_base_name] = filenames
     return render_template('processed_files.html', processed_files=processed_files)
 
-@app.route('/processed/<pdf_base_name>/<filename>')
-def get_processed_file(pdf_base_name, filename):
-    directory = os.path.join(app.config['PROCESSED_FOLDER'], pdf_base_name)
-    return send_from_directory(directory, filename)
+# Route to serve files from the processed folder
+@app.route('/processed/<path:filename>')
+def serve_processed_file(filename):
+    return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
