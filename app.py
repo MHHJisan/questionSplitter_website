@@ -29,7 +29,6 @@ def index():
     message = request.args.get('message')
     return render_template('index.html', message=message)
 
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -43,13 +42,9 @@ def upload_file():
         file.save(file_path)
         socketio.start_background_task(process_pdf, file_path, filename)
         return redirect(url_for('index', message=f"File uploaded and processed successfully. Check the '{app.config['PROCESSED_FOLDER']}' folder."))
-    
-def process_pdf(pdf_path, pdf_name):
-    
-    # Remove the .pdf extension from the PDF name
-    pdf_base_name = os.path.splitext(pdf_name)[0]
 
-    # Create a folder path using the PDF name
+def process_pdf(pdf_path, pdf_name):
+    pdf_base_name = os.path.splitext(pdf_name)[0]
     folder_path = os.path.join(app.config['PROCESSED_FOLDER'], pdf_base_name)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -121,6 +116,20 @@ def process_pdf(pdf_path, pdf_name):
                     question += 1
     else:
         print("None of the target sentences found in the PDF.")
+
+@app.route('/processed')
+def list_processed_files():
+    processed_files = {}
+    for dirpath, dirnames, filenames in os.walk(app.config['PROCESSED_FOLDER']):
+        if filenames:
+            pdf_base_name = os.path.basename(dirpath)
+            processed_files[pdf_base_name] = filenames
+    return render_template('processed_files.html', processed_files=processed_files)
+
+@app.route('/processed/<pdf_base_name>/<filename>')
+def get_processed_file(pdf_base_name, filename):
+    directory = os.path.join(app.config['PROCESSED_FOLDER'], pdf_base_name)
+    return send_from_directory(directory, filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

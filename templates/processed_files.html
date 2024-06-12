@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processed Files</title>
+</head>
+<body>
+    <h1>Processed Files</h1>
+    {% for pdf_base_name, filenames in processed_files.items() %}
+        <h2>{{ pdf_base_name }}</h2>
+        <ul>
+            {% for filename in filenames %}
+                <li>
+                    <a href="{{ url_for('get_processed_file', pdf_base_name=pdf_base_name, filename=filename) }}">{{ filename }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>
