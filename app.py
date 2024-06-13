@@ -15,10 +15,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
 # Set the path to the Poppler binaries
-# poppler_path = "/usr/local/Cellar/poppler/24.04.0/bin"
+poppler_path = "/usr/local/Cellar/poppler/24.04.0/bin"
 
 # Set the path to the Tesseract executable
-# pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
 
 poppler_path = os.getenv('POPPLER_PATH', default='/usr/local/Cellar/poppler/24.04.0/bin')
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', default='/usr/local/bin/tesseract')
