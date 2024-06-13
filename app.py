@@ -5,27 +5,28 @@ from pdf2image import convert_from_path
 import pytesseract
 import cv2
 import numpy as np
+import logging
 
+# Initialize Flask and SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+# Configure upload and processed folders
 UPLOAD_FOLDER = 'uploads'
 PROCESSED_FOLDER = 'processed'
-
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
-# Set the path to the Poppler binaries
-poppler_path = "/usr/local/Cellar/poppler/24.04.0/bin"
-
-# Set the path to the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
-
+# Set the path to Poppler and Tesseract using environment variables
 poppler_path = os.getenv('POPPLER_PATH', default='/usr/local/Cellar/poppler/24.04.0/bin')
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', default='/usr/local/bin/tesseract')
 
 # Ensure the upload and processed folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 @app.route('/')
 def index():
@@ -44,26 +45,34 @@ def upload_file():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         socketio.start_background_task(process_pdf, file_path, filename)
-        return redirect(url_for('index', message=f"File uploaded and processed successfully. Check the '{app.config['PROCESSED_FOLDER']}' folder."))
+        return redirect(url_for('index', message=f"File uploaded and processing started. Check the '{app.config['PROCESSED_FOLDER']}' folder."))
 
 def process_pdf(pdf_path, pdf_name):
-    pdf_base_name = os.path.splitext(pdf_name)[0]
-    folder_path = os.path.join(app.config['PROCESSED_FOLDER'], pdf_base_name)
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
+    try:
+        pdf_base_name = os.path.splitext(pdf_name)[0]
+        folder_path = os.path.join(app.config['PROCESSED_FOLDER'], pdf_base_name)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
-    target_sentences = ["Paper 1 Multiple Choice ", "PAPER 1 Multiple Choice "]
-    pages = convert_from_path(pdf_path=pdf_path, poppler_path=poppler_path, dpi=300)
-    target_found = False
-    target_page_number = 0
+        target_sentences = ["Paper 1 Multiple Choice ", "PAPER 1 Multiple Choice "]
+        pages = convert_from_path(pdf_path=pdf_path, poppler_path=poppler_path, dpi=300)
+        target_found = False
 
-    for page_number, page in enumerate(pages, start=1):
-        text = pytesseract.image_to_string(page)
-        if any(sentence in text for sentence in target_sentences):
-            target_found = True
-            break
+        for page_number, page in enumerate(pages, start=1):
+            text = pytesseract.image_to_string(page)
+            if any(sentence in text for sentence in target_sentences):
+                target_found = True
+                break
 
-    if target_found:
+        if target_found:
+            process_target_pages(pages, folder_path, pdf_base_name)
+        else:
+            logging.info("None of the target sentences found in the PDF.")
+    except Exception as e:
+        logging.error(f"Error processing PDF: {e}")
+
+def process_target_pages(pages, folder_path, pdf_base_name):
+    try:
         target_page_number = 4
         max_distance_left_pixels = 300
         count = 1
@@ -117,22 +126,30 @@ def process_pdf(pdf_path, pdf_name):
                     cropped_image = page.crop((0, upper, width, lower))
                     cropped_image.save(os.path.join(folder_path, f'{pdf_base_name}_q{question}.png'))
                     question += 1
-    else:
-        print("None of the target sentences found in the PDF.")
+    except Exception as e:
+        logging.error(f"Error processing target pages: {e}")
 
 @app.route('/processed')
 def list_processed_files():
-    processed_files = {}
-    for dirpath, dirnames, filenames in os.walk(app.config['PROCESSED_FOLDER']):
-        if filenames:
-            pdf_base_name = os.path.basename(dirpath)
-            processed_files[pdf_base_name] = filenames
-    return render_template('processed_files.html', processed_files=processed_files)
+    try:
+        processed_files = {}
+        for dirpath, dirnames, filenames in os.walk(app.config['PROCESSED_FOLDER']):
+            if filenames:
+                pdf_base_name = os.path.basename(dirpath)
+                processed_files[pdf_base_name] = filenames
+        return render_template('processed_files.html', processed_files=processed_files)
+    except Exception as e:
+        logging.error(f"Error listing processed files: {e}")
+        return redirect(url_for('index', message="Error listing processed files"))
 
 # Route to serve files from the processed folder
 @app.route('/processed/<path:filename>')
 def serve_processed_file(filename):
-    return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
+    try:
+        return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
+    except Exception as e:
+        logging.error(f"Error serving processed file: {e}")
+        return redirect(url_for('index', message="Error serving processed file"))
 
 if __name__ == '__main__':
     app.run(debug=True)
