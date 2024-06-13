@@ -131,16 +131,16 @@ def process_target_pages(pages, folder_path, pdf_base_name):
 
 @app.route('/processed')
 def list_processed_files():
-    try:
-        processed_files = {}
-        for dirpath, dirnames, filenames in os.walk(app.config['PROCESSED_FOLDER']):
-            if filenames:
-                pdf_base_name = os.path.basename(dirpath)
-                processed_files[pdf_base_name] = filenames
-        return render_template('processed_files.html', processed_files=processed_files)
-    except Exception as e:
-        logging.error(f"Error listing processed files: {e}")
-        return redirect(url_for('index', message="Error listing processed files"))
+    processed_files = {}
+    for dirpath, dirnames, filenames in os.walk(app.config['PROCESSED_FOLDER']):
+        print(f"Directory path: {dirpath}")
+        print(f"Directories: {dirnames}")
+        print(f"Files: {filenames}")
+        if filenames:
+            pdf_base_name = os.path.basename(dirpath)
+            processed_files[pdf_base_name] = filenames
+    print(f"Processed files: {processed_files}")
+    return render_template('processed_files.html', processed_files=processed_files)
 
 # Route to serve files from the processed folder
 @app.route('/processed/<path:filename>')

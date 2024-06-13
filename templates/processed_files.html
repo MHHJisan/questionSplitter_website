@@ -7,15 +7,16 @@
 </head>
 <body>
     <h1>Processed Files</h1>
-    {% for pdf_base_name, filenames in processed_files.items() %}
-        <h2>{{ pdf_base_name }}</h2>
-        <ul>
-            {% for filename in filenames %}
-                <li>
-                    <a href="{{ url_for('get_processed_file', pdf_base_name=pdf_base_name, filename=filename) }}">{{ filename }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endfor %}
+    <ul>
+        {% for pdf_base_name, filenames in processed_files.items() %}
+        <li>{{ pdf_base_name }}:
+            <ul>
+                {% for filename in filenames %}
+                <li><a href="{{ url_for('serve_processed_file', filename=filename) }}">{{ filename }}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
