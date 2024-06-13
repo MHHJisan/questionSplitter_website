@@ -27,13 +27,20 @@ pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', default='/usr
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
+# Flag to indicate if processing task is completed
+processing_completed = False
+
 @app.route('/')
 def index():
+    global processing_completed
     message = request.args.get('message')
+    if processing_completed:
+        return redirect(url_for('list_processed_files'))
     return render_template('index.html', message=message)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    global processing_completed
     if 'file' not in request.files:
         return redirect(url_for('index', message="No file part"))
     file = request.files['file']
@@ -44,9 +51,10 @@ def upload_file():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         socketio.start_background_task(process_pdf, file_path, filename)
-        return redirect(url_for('index', message=f"File uploaded and processed successfully. Check the '{app.config['PROCESSED_FOLDER']}' folder."))
+        return redirect(url_for('index', message=f"File uploaded and processing started."))
 
 def process_pdf(pdf_path, pdf_name):
+    global processing_completed
     pdf_base_name = os.path.splitext(pdf_name)[0]
     folder_path = os.path.join(app.config['PROCESSED_FOLDER'], pdf_base_name)
     if not os.path.exists(folder_path):
@@ -117,6 +125,7 @@ def process_pdf(pdf_path, pdf_name):
                     cropped_image = page.crop((0, upper, width, lower))
                     cropped_image.save(os.path.join(folder_path, f'{pdf_base_name}_q{question}.png'))
                     question += 1
+        processing_completed = True
     else:
         print("None of the target sentences found in the PDF.")
 
