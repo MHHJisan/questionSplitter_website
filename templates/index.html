@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Processor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,6 +67,26 @@
             color: #770000;
             border: 1px solid #cc0000;
         }
+        .developed-by {
+            margin-top: 20px;
+        }
+        .developed-by a {
+            color: #007bff;
+            margin: 0 10px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .developed-by a:hover {
+            color: #0056b3;
+        }
+        .developed-by i {
+            font-size: 1.5em;
+        }
+
+        .github-icon {
+            color: #181717 !important;
+        }
+
     </style>
 </head>
 <body>
@@ -80,6 +101,12 @@
                 {{ message }}
             </div>
         {% endif %}
+        <div class="developed-by">
+            <p>Developed by <b><a href="https://jisansportfolio.netlify.app/" target="_blank">Mohammad Hasibul Haque</a></b></p>
+            <a href="https://www.facebook.com/hasibulhaquejisan/" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.linkedin.com/in/mhhaquejisan/" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/MHHJisan/" target="_blank"><i class="fab fa-github github-icon"></i></a>
+        </div>
     </div>
 </body>
 </html>
