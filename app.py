@@ -20,7 +20,7 @@ poppler_path = "/usr/local/Cellar/poppler/24.04.0/bin"
 # Set the path to the Tesseract executable
 pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
 
-poppler_path = os.getenv('POPPLER_PATH', default='/usr/local/Cellar/poppler/24.04.0/bin')
+poppler_path = os.getenv('POPPLER_PATH', default='/usr/bin')
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', default='/usr/local/bin/tesseract')
 
 # Ensure the upload and processed folders exist
