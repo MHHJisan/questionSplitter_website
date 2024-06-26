@@ -5,6 +5,9 @@ from pdf2image import convert_from_path
 import pytesseract
 import cv2
 import numpy as np
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -15,12 +18,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 
 # Set the path to the Poppler binaries
-poppler_path = "/usr/local/Cellar/poppler/24.04.0/bin"
+poppler_path = os.getenv('POPPLER_PATH', default='/usr/bin')
 
 # Set the path to the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
-
-poppler_path = os.getenv('POPPLER_PATH', default='/usr/bin')
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', default='/usr/local/bin/tesseract')
 
 # Ensure the upload and processed folders exist
@@ -67,6 +67,7 @@ def process_pdf(pdf_path, pdf_name):
 
     for page_number, page in enumerate(pages, start=1):
         text = pytesseract.image_to_string(page)
+        logging.debug(f'Page {page_number} text: {text[:100]}')  # Log the first 100 characters of the page text
         if any(sentence in text for sentence in target_sentences):
             target_found = True
             break
@@ -114,7 +115,9 @@ def process_pdf(pdf_path, pdf_name):
                 lower = max(height - start_y, height - end_y) - 50
                 if lower > upper:
                     cropped_image = page.crop((0, upper, width, lower))
-                    cropped_image.save(os.path.join(folder_path, f'{pdf_base_name}_q{question}.png'))
+                    cropped_image_path = os.path.join(folder_path, f'{pdf_base_name}_q{question}.png')
+                    cropped_image.save(cropped_image_path)
+                    logging.debug(f'Saved cropped image: {cropped_image_path}')
                     question += 1
 
             if line_y_coordinates:
@@ -123,17 +126,20 @@ def process_pdf(pdf_path, pdf_name):
                 lower = height - 70
                 if lower > upper:
                     cropped_image = page.crop((0, upper, width, lower))
-                    cropped_image.save(os.path.join(folder_path, f'{pdf_base_name}_q{question}.png'))
+                    cropped_image_path = os.path.join(folder_path, f'{pdf_base_name}_q{question}.png')
+                    cropped_image.save(cropped_image_path)
+                    logging.debug(f'Saved cropped image: {cropped_image_path}')
                     question += 1
         processing_completed = True
-        print("Processing completed.")
+        logging.debug("Processing completed.")
     else:
-        print("None of the target sentences found in the PDF.")
+        logging.debug("None of the target sentences found in the PDF.")
 
 @app.route('/processed')
 def list_processed_files():
     processed_files = {}
     for dirpath, dirnames, filenames in os.walk(app.config['PROCESSED_FOLDER']):
+        logging.debug(f'Directory {dirpath} with files: {filenames}')  # Log directory and files
         if filenames:
             pdf_base_name = os.path.basename(dirpath)
             rel_dirpath = os.path.relpath(dirpath, app.config['PROCESSED_FOLDER'])
