@@ -1,8 +1,13 @@
 services:
   - type: web
-    name: my-web-app
+    name: questionsplitter-website
     env: python
     buildCommand: |
-      apt-get update && apt-get install -y poppler-utils
+      apt-get update && apt-get install -y poppler-utils tesseract-ocr
       pip install -r requirements.txt
     startCommand: python app.py
+    envVars:
+      - key: POPPLER_PATH
+        value: /usr/bin
+      - key: TESSERACT_CMD
+        value: /usr/bin/tesseract

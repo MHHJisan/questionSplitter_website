@@ -126,6 +126,7 @@ def process_pdf(pdf_path, pdf_name):
                     cropped_image.save(os.path.join(folder_path, f'{pdf_base_name}_q{question}.png'))
                     question += 1
         processing_completed = True
+        print("Processing completed.")
     else:
         print("None of the target sentences found in the PDF.")
 
