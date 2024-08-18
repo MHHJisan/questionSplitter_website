@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +18,7 @@
             justify-content: center;
             height: 100vh;
         }
+
         .header {
             width: 100%;
             text-align: center;
@@ -25,15 +27,19 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
+
         .header h1 {
             margin: 10px 0;
             color: #ffffff
         }
+
         .header img {
-            max-width: 100px; /* Adjust size as needed */
+            max-width: 100px;
+            /* Adjust size as needed */
             height: auto;
             margin: 0 10px;
         }
+
         .container {
             text-align: center;
             background-color: #ffffff;
@@ -43,20 +49,57 @@
             width: 90%;
             max-width: 500px;
         }
+
         form {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
+        .target_page_number_label {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 100;
+            font-style: bold;
+        }
+
+        .subject-label{
+            margin-bottom: 20px;
+        }
+
         input[type="file"] {
             margin-bottom: 20px;
             padding: 10px;
-            border: 1px solid #cccccc;
+            border: 1px solid #0fb11a;
             border-radius: 5px;
             width: 100%;
             max-width: 400px;
         }
+
+        input[type="number"] {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #e22525;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            
+        }
+
+        input[type="text"] {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border: 1px solid #0fb11a;
+            border-radius: 5px;
+            width: 70%;
+            height: 30px;
+            text-align: center;
+        }
+
         input[type="submit"] {
+            margin-top: 20px;
             background-color: #007bff;
             color: #ffffff;
             border: none;
@@ -65,9 +108,11 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
+
         .message {
             margin-top: 20px;
             padding: 10px;
@@ -76,31 +121,94 @@
             border: 1px solid #00cc00;
             border-radius: 5px;
         }
+
         .error {
             background-color: #ffe0e0;
             color: #770000;
             border: 1px solid #cc0000;
         }
+
         .developed-by {
             margin-top: 20px;
         }
+
         .developed-by a {
             color: #007bff;
             margin: 0 10px;
             text-decoration: none;
             transition: color 0.3s ease;
         }
+
         .developed-by a:hover {
             color: #0056b3;
         }
+
         .developed-by i {
             font-size: 1.5em;
         }
+
         .github-icon {
             color: #181717 !important;
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        /* Style for the close button (only on completion modal) */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .processing-gif {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
+
 <body>
     <div class="header">
         <!-- <img src="/cropped-Octagon-Logo-_2-1-3.png" alt="Octagon Logo"> -->
@@ -111,21 +219,85 @@
         <h1>Upload a PDF File</h1>
         <form method="POST" action="/upload" enctype="multipart/form-data">
             <input type="file" name="file" required>
+            <!-- New input field for the target page number -->
+            <label for="target_page_number" name="target_page_number_label" id="target_page_number_label">Target Page
+                Number:</label>
+            <input type="number" name="target_page_number" id="target_page_number" required min="1"
+                placeholder="Enter the target page number">
+
+            <!-- New input field for the subject -->
+            <label for="subject" name="subject_label" id="subject_label">Subject:</label>
+            <input type="text" name="subject" id="subject" required placeholder="Enter the subject">
+
             <input type="submit" value="Upload">
         </form>
         {% if message %}
-            <div class="message {% if 'error' in message.lower() %}error{% endif %}">
-                {{ message }}
-            </div>
+        <div class="message {% if 'error' in message.lower() %}error{% endif %}">
+            {{ message }}
+        </div>
         {% endif %}
         <div class="developed-by">
             <p>Developed by</p>
-            <p> <b><a href="https://jisansportfolio.netlify.app/" target="_blank">Mohammad Hasibul Haque Jisan</a></b></p>
+            <p> <b><a href="https://jisansportfolio.netlify.app/" target="_blank">Mohammad Hasibul Haque Jisan</a></b>
+            </p>
 
             <a href="https://www.facebook.com/hasibulhaquejisan/" target="_blank"><i class="fab fa-facebook"></i></a>
             <a href="https://www.linkedin.com/in/mhhaquejisan/" target="_blank"><i class="fab fa-linkedin"></i></a>
             <a href="https://github.com/MHHJisan/" target="_blank"><i class="fab fa-github github-icon"></i></a>
         </div>
     </div>
+
+    <!-- Processing Modal -->
+    <div id="processingModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <p>Question paper splitting is in processing...</p>
+            <img src="https://i.gifer.com/ZZ5H.gif" alt="Processing..." class="processing-gif">
+        </div>
+    </div>
+
+
+    <!-- Completion Modal -->
+    <div id="completionModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Processing has completed!</p>
+        </div>
+    </div>
 </body>
+
 </html>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.min.js"></script>
+<script>
+    var socket = io();
+
+    // Show the processing modal when the form is submitted
+    document.querySelector("form").onsubmit = function () {
+        var processingModal = document.getElementById("processingModal");
+        processingModal.style.display = "block";
+    };
+
+    socket.on('processing_done', function () {
+        // Hide the processing modal and show the completion modal
+        var processingModal = document.getElementById("processingModal");
+        var completionModal = document.getElementById("completionModal");
+        processingModal.style.display = "none";
+        completionModal.style.display = "block";
+    });
+
+    // When the user clicks on <span> (x), close the modal and redirect to index
+    document.querySelector(".close").onclick = function () {
+        var completionModal = document.getElementById("completionModal");
+        completionModal.style.display = "none";
+        window.location.href = "/";
+    };
+
+    // When the user clicks anywhere outside of the modal, close it and redirect to index
+    window.onclick = function (event) {
+        var completionModal = document.getElementById("completionModal");
+        if (event.target == completionModal) {
+            completionModal.style.display = "none";
+            window.location.href = "/";
+        }
+    };
+</script>
