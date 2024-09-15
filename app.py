@@ -69,7 +69,7 @@ def process_pdf(pdf_path, pdf_name, target_page_number, subject):
         folder_path = os.path.join(subject_folder, pdf_base_name)
         os.makedirs(folder_path, exist_ok=True)
 
-        target_sentences = ["Paper 1 Multiple Choice ", "PAPER 1 Multiple Choice ", "Paper 1 AS Level Multiple Choice "]
+        target_sentences = ["Paper 1 Multiple Choice ", "PAPER 1 Multiple Choice ", "Paper 1 AS Level Multiple Choice ", " "]
         pages = convert_from_path(pdf_path=pdf_path, poppler_path=poppler_path, dpi=300)
 
         target_found = False
